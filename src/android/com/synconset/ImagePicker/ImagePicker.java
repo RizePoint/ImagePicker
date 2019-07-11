@@ -32,6 +32,7 @@ public class ImagePicker extends CordovaPlugin {
     private static final int PERMISSION_REQUEST_CODE = 100;
 
     private CallbackContext callbackContext;
+    private Intent imagePickerIntent;
 
     public boolean execute(String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
         this.callbackContext = callbackContext;
@@ -46,7 +47,7 @@ public class ImagePicker extends CordovaPlugin {
 
         } else if (ACTION_GET_PICTURES.equals(action)) {
             final JSONObject params = args.getJSONObject(0);
-            final Intent imagePickerIntent = new Intent(cordova.getActivity(), MultiImageChooserActivity.class);
+            imagePickerIntent = new Intent(cordova.getActivity(), MultiImageChooserActivity.class);
             int max = 20;
             int desiredWidth = 0;
             int desiredHeight = 0;
@@ -74,8 +75,6 @@ public class ImagePicker extends CordovaPlugin {
             imagePickerIntent.putExtra("QUALITY", quality);
             imagePickerIntent.putExtra("OUTPUT_TYPE", outputType);
 
-            // some day, when everybody uses a cordova version supporting 'hasPermission', enable this:
-            /*
             if (cordova != null) {
                  if (cordova.hasPermission(Manifest.permission.READ_EXTERNAL_STORAGE)) {
                     cordova.startActivityForResult(this, imagePickerIntent, 0);
@@ -87,16 +86,6 @@ public class ImagePicker extends CordovaPlugin {
                      );
                  }
              }
-             */
-            // .. until then use:
-            if (hasReadPermission()) {
-                cordova.startActivityForResult(this, imagePickerIntent, 0);
-            } else {
-                requestReadPermission();
-                // The downside is the user needs to re-invoke this picker method.
-                // The best thing to do for the dev is check 'hasReadPermission' manually and
-                // run 'requestReadPermission' or 'getPictures' based on the outcome.
-            }
             return true;
         }
         return false;
@@ -155,7 +144,6 @@ public class ImagePicker extends CordovaPlugin {
         this.callbackContext = callbackContext;
     }
 
-/*
     @Override
     public void onRequestPermissionResult(int requestCode,
                                           String[] permissions,
@@ -169,5 +157,4 @@ public class ImagePicker extends CordovaPlugin {
             callbackContext.error("Permission denied");
         }
     }
-*/
 }
